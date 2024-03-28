@@ -22,6 +22,9 @@ from sensor_msgs.msg import JointState
 
 from simple_actions import SimpleActionServer
 
+MAX_RETRIES_PARAM = "max_retries"
+BUSY_WAIT_TIME_PARAM = "busy_wait_time"
+CONVERGENCE_THRESHOLD_PARAM = "convergence_threshold"
 
 class PointQueueProxy:
     def __init__(self, node):
@@ -29,14 +32,26 @@ class PointQueueProxy:
         self._logger = self._node.get_logger()
         self._logger.info("PointQueueProxy: initialising ..")
 
-        # TODO: convert to ROS parameters
+        # Declare ROS parameters
+        self._node.declare_parameter(MAX_RETRIES_PARAM, 20)
+        self._node.declare_parameter(BUSY_WAIT_TIME_PARAM, 0.05)
+        self._node.declare_parameter(CONVERGENCE_THRESHOLD_PARAM, 0.01)
 
         # maximum nr of retries per traj pt
-        self._max_retries: int = 20
+        try:
+            self._max_retries = int(self._node.get_parameter(MAX_RETRIES_PARAM).value)
+        except:
+            self._logger.error(f"Failed to load {MAX_RETRIES_PARAM} parameter")
         # seconds: how long to wait between (re)submissions
-        self._busy_wait_time: float = 0.05
+        try:
+            self._busy_wait_time = float(self._node.get_parameter(BUSY_WAIT_TIME_PARAM).value)
+        except:
+            self._logger.error(f"Failed to load {BUSY_WAIT_TIME_PARAM} parameter")
         # radians: total joint distance, not per-joint
-        self._convergence_threshold: float = 0.01
+        try:
+            self._convergence_threshold = float(self._node.get_parameter(CONVERGENCE_THRESHOLD_PARAM).value)
+        except:
+            self._logger.error(f"Failed to load {CONVERGENCE_THRESHOLD_PARAM} parameter")
 
         # TODO: use remapping, not parameters
         self._joint_states_topic: str = 'joint_states'
