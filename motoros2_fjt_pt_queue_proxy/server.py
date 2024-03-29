@@ -26,6 +26,10 @@ MAX_RETRIES_PARAM = "max_retries"
 BUSY_WAIT_TIME_PARAM = "busy_wait_time"
 CONVERGENCE_THRESHOLD_PARAM = "convergence_threshold"
 
+MAX_RETRIES_DEFAULT = 20
+BUSY_WAIT_TIME_DEFAULT = 0.05
+CONVERGENCE_THRESHOLD_DEFAULT = 0.01
+
 class PointQueueProxy:
     def __init__(self, node):
         self._node = node
@@ -33,25 +37,28 @@ class PointQueueProxy:
         self._logger.info("PointQueueProxy: initialising ..")
 
         # Declare ROS parameters
-        self._node.declare_parameter(MAX_RETRIES_PARAM, 20)
-        self._node.declare_parameter(BUSY_WAIT_TIME_PARAM, 0.05)
-        self._node.declare_parameter(CONVERGENCE_THRESHOLD_PARAM, 0.01)
+        self._node.declare_parameter(MAX_RETRIES_PARAM, MAX_RETRIES_DEFAULT)
+        self._node.declare_parameter(BUSY_WAIT_TIME_PARAM, BUSY_WAIT_TIME_DEFAULT)
+        self._node.declare_parameter(CONVERGENCE_THRESHOLD_PARAM, CONVERGENCE_THRESHOLD_DEFAULT)
 
         # maximum nr of retries per traj pt
         try:
             self._max_retries = int(self._node.get_parameter(MAX_RETRIES_PARAM).value)
         except:
-            self._logger.error(f"Failed to load {MAX_RETRIES_PARAM} parameter")
+            self._logger.warning(f"Failed to load {MAX_RETRIES_PARAM} parameter, 
+                                 defaulting to {MAX_RETRIES_DEFAULT}")
         # seconds: how long to wait between (re)submissions
         try:
             self._busy_wait_time = float(self._node.get_parameter(BUSY_WAIT_TIME_PARAM).value)
         except:
-            self._logger.error(f"Failed to load {BUSY_WAIT_TIME_PARAM} parameter")
+            self._logger.warning(f"Failed to load {BUSY_WAIT_TIME_PARAM} parameter, 
+                                 defaulting to {BUSY_WAIT_TIME_DEFAULT}")
         # radians: total joint distance, not per-joint
         try:
             self._convergence_threshold = float(self._node.get_parameter(CONVERGENCE_THRESHOLD_PARAM).value)
         except:
-            self._logger.error(f"Failed to load {CONVERGENCE_THRESHOLD_PARAM} parameter")
+            self._logger.warning(f"Failed to load {CONVERGENCE_THRESHOLD_PARAM} parameter, 
+                                 defaulting to {CONVERGENCE_THRESHOLD_DEFAULT}")
 
         # TODO: use remapping, not parameters
         self._joint_states_topic: str = 'joint_states'
