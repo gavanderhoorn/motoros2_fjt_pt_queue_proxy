@@ -22,6 +22,13 @@ from sensor_msgs.msg import JointState
 
 from simple_actions import SimpleActionServer
 
+MAX_RETRIES_PARAM = "max_retries"
+BUSY_WAIT_TIME_PARAM = "busy_wait_time"
+CONVERGENCE_THRESHOLD_PARAM = "convergence_threshold"
+
+MAX_RETRIES_DEFAULT = 20
+BUSY_WAIT_TIME_DEFAULT = 0.05
+CONVERGENCE_THRESHOLD_DEFAULT = 0.01
 
 class PointQueueProxy:
     def __init__(self, node):
@@ -29,14 +36,29 @@ class PointQueueProxy:
         self._logger = self._node.get_logger()
         self._logger.info("PointQueueProxy: initialising ..")
 
-        # TODO: convert to ROS parameters
+        # Declare ROS parameters
+        self._node.declare_parameter(MAX_RETRIES_PARAM, MAX_RETRIES_DEFAULT)
+        self._node.declare_parameter(BUSY_WAIT_TIME_PARAM, BUSY_WAIT_TIME_DEFAULT)
+        self._node.declare_parameter(CONVERGENCE_THRESHOLD_PARAM, CONVERGENCE_THRESHOLD_DEFAULT)
 
         # maximum nr of retries per traj pt
-        self._max_retries: int = 20
+        try:
+            self._max_retries = int(self._node.get_parameter(MAX_RETRIES_PARAM).value)
+        except:
+            self._logger.warning(f"Failed to load {MAX_RETRIES_PARAM} parameter, 
+                                 defaulting to {MAX_RETRIES_DEFAULT}")
         # seconds: how long to wait between (re)submissions
-        self._busy_wait_time: float = 0.05
+        try:
+            self._busy_wait_time = float(self._node.get_parameter(BUSY_WAIT_TIME_PARAM).value)
+        except:
+            self._logger.warning(f"Failed to load {BUSY_WAIT_TIME_PARAM} parameter, 
+                                 defaulting to {BUSY_WAIT_TIME_DEFAULT}")
         # radians: total joint distance, not per-joint
-        self._convergence_threshold: float = 0.01
+        try:
+            self._convergence_threshold = float(self._node.get_parameter(CONVERGENCE_THRESHOLD_PARAM).value)
+        except:
+            self._logger.warning(f"Failed to load {CONVERGENCE_THRESHOLD_PARAM} parameter, 
+                                 defaulting to {CONVERGENCE_THRESHOLD_DEFAULT}")
 
         # TODO: use remapping, not parameters
         self._joint_states_topic: str = 'joint_states'
