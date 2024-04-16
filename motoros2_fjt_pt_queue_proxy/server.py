@@ -45,20 +45,20 @@ class PointQueueProxy:
         try:
             self._max_retries = int(self._node.get_parameter(MAX_RETRIES_PARAM).value)
         except:
-            self._logger.warning(f"Failed to load {MAX_RETRIES_PARAM} parameter, 
-                                 defaulting to {MAX_RETRIES_DEFAULT}")
+            self._logger.warning(f"Failed to load {MAX_RETRIES_PARAM} parameter, " 
+                                 f"defaulting to {MAX_RETRIES_DEFAULT}")
         # seconds: how long to wait between (re)submissions
         try:
             self._busy_wait_time = float(self._node.get_parameter(BUSY_WAIT_TIME_PARAM).value)
         except:
-            self._logger.warning(f"Failed to load {BUSY_WAIT_TIME_PARAM} parameter, 
-                                 defaulting to {BUSY_WAIT_TIME_DEFAULT}")
+            self._logger.warning(f"Failed to load {BUSY_WAIT_TIME_PARAM} parameter, " 
+                                 f"defaulting to {BUSY_WAIT_TIME_DEFAULT}")
         # radians: total joint distance, not per-joint
         try:
             self._convergence_threshold = float(self._node.get_parameter(CONVERGENCE_THRESHOLD_PARAM).value)
         except:
-            self._logger.warning(f"Failed to load {CONVERGENCE_THRESHOLD_PARAM} parameter, 
-                                 defaulting to {CONVERGENCE_THRESHOLD_DEFAULT}")
+            self._logger.warning(f"Failed to load {CONVERGENCE_THRESHOLD_PARAM} parameter, " 
+                                 f"defaulting to {CONVERGENCE_THRESHOLD_DEFAULT}")
 
         # TODO: use remapping, not parameters
         self._joint_states_topic: str = 'joint_states'
